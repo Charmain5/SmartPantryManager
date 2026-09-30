@@ -1,3 +1,4 @@
+
 package com.example.smartpantrymanager.matcher;
 
 import android.database.Cursor;
@@ -10,24 +11,52 @@ import com.example.smartpantrymanager.model.RecipeIngredient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the strict matching logic used to determine
+ * which recipes can be prepared using the ingredients
+ * currently available in the pantry.
+ *
+ * A recipe is suggested only when:
+ * - Every required ingredient is available.
+ * - Ingredient names match after normalization.
+ * - Units are compatible.
+ * - The pantry quantity is equal to or greater than
+ *   the quantity required by the recipe.
+ */
 public class StrictRecipeMatcher {
 
+    /*
+     * Database helper used to retrieve pantry items,
+     * recipes, and recipe ingredients.
+     */
     private final DatabaseHelper databaseHelper;
 
+
+    /**
+     * Creates a new recipe matcher using the application's
+     * database helper.
+     */
     public StrictRecipeMatcher(DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
+
 
     // =========================================================
     // GET ALL RECIPES THAT CAN CURRENTLY BE MADE
     // =========================================================
 
+    /**
+     * Checks all stored recipes and returns only the recipes
+     * that can currently be prepared from the pantry.
+     */
     public List<Recipe> getSuggestedRecipes() {
 
         List<Recipe> suggestedRecipes = new ArrayList<>();
 
+        // Load the ingredients currently available in the pantry.
         List<PantryItem> pantryItems = getPantryItems();
 
+        // Retrieve all recipes from the database.
         Cursor recipeCursor = databaseHelper.getAllRecipes();
 
         if (recipeCursor == null) {
@@ -59,6 +88,7 @@ public class StrictRecipeMatcher {
                                 )
                         );
 
+                // Create a Recipe object from the database record.
                 Recipe recipe = new Recipe(
                         recipeId,
                         recipeName,
@@ -77,6 +107,7 @@ public class StrictRecipeMatcher {
 
         } finally {
 
+            // Always close the database cursor after processing.
             recipeCursor.close();
         }
 
@@ -88,6 +119,10 @@ public class StrictRecipeMatcher {
     // CHECK ONE RECIPE
     // =========================================================
 
+    /**
+     * Checks whether the pantry contains everything required
+     * to prepare the specified recipe.
+     */
     private boolean canMakeRecipe(
             Recipe recipe,
             List<PantryItem> pantryItems) {
@@ -159,6 +194,7 @@ public class StrictRecipeMatcher {
 
         } finally {
 
+            // Close the ingredient cursor after processing.
             ingredientCursor.close();
         }
 
@@ -173,6 +209,10 @@ public class StrictRecipeMatcher {
     // FIND MATCHING PANTRY ITEM
     // =========================================================
 
+    /**
+     * Searches the pantry for an ingredient that satisfies
+     * the required name, unit, and quantity.
+     */
     private PantryItem findMatchingPantryItem(
             String requiredName,
             double requiredQuantity,
@@ -237,6 +277,7 @@ public class StrictRecipeMatcher {
             }
         }
 
+        // No suitable pantry item was found.
         return null;
     }
 
@@ -245,6 +286,10 @@ public class StrictRecipeMatcher {
     // GET PANTRY ITEMS
     // =========================================================
 
+    /**
+     * Loads all pantry items from SQLite and converts
+     * each database record into a PantryItem object.
+     */
     private List<PantryItem> getPantryItems() {
 
         List<PantryItem> pantryItems =
@@ -296,6 +341,7 @@ public class StrictRecipeMatcher {
                                 )
                         );
 
+                // Convert the database row into a pantry model object.
                 pantryItems.add(
                         new PantryItem(
                                 id,
@@ -309,6 +355,7 @@ public class StrictRecipeMatcher {
 
         } finally {
 
+            // Close the cursor after all pantry records are loaded.
             cursor.close();
         }
 
@@ -320,6 +367,12 @@ public class StrictRecipeMatcher {
     // INGREDIENT NAME NORMALIZATION
     // =========================================================
 
+    /**
+     * Compares two ingredient names after normalization.
+     *
+     * Normalization allows common variations such as
+     * singular and plural ingredient names to match.
+     */
     private boolean ingredientNamesMatch(
             String pantryName,
             String recipeName) {
@@ -334,6 +387,10 @@ public class StrictRecipeMatcher {
     }
 
 
+    /**
+     * Converts ingredient names into a consistent format
+     * before comparing them.
+     */
     private String normalizeIngredientName(
             String ingredientName) {
 
@@ -430,6 +487,10 @@ public class StrictRecipeMatcher {
     // UNIT COMPATIBILITY
     // =========================================================
 
+    /**
+     * Determines whether the pantry unit and recipe unit
+     * can be compared with each other.
+     */
     private boolean areUnitsCompatible(
             String pantryUnit,
             String recipeUnit) {
@@ -486,6 +547,10 @@ public class StrictRecipeMatcher {
     // NORMALIZE UNIT
     // =========================================================
 
+    /**
+     * Converts different spellings and abbreviations
+     * into a standard unit name.
+     */
     private String normalizeUnit(String unit) {
 
         if (unit == null) {
@@ -553,6 +618,9 @@ public class StrictRecipeMatcher {
     // UNIT GROUPS
     // =========================================================
 
+    /**
+     * Identifies units that represent weight.
+     */
     private boolean isWeightUnit(String unit) {
 
         return unit.equals("grams") ||
@@ -560,6 +628,9 @@ public class StrictRecipeMatcher {
     }
 
 
+    /**
+     * Identifies units that represent volume.
+     */
     private boolean isVolumeUnit(String unit) {
 
         return unit.equals("ml") ||
@@ -571,6 +642,13 @@ public class StrictRecipeMatcher {
     // CONVERT TO BASE UNIT
     // =========================================================
 
+    /**
+     * Converts compatible weight and volume measurements
+     * into their respective base units.
+     *
+     * Weight base unit  = grams
+     * Volume base unit  = millilitres
+     */
     private double convertToBaseUnit(
             double quantity,
             String unit) {
@@ -613,3 +691,4 @@ public class StrictRecipeMatcher {
         return quantity;
     }
 }
+
