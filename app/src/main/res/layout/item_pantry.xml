@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:orientation="vertical"
+    android:padding="18dp"
+    android:background="@drawable/bg_card">
+
+    <!-- ===================================================== -->
+    <!-- INGREDIENT HEADER -->
+    <!-- ===================================================== -->
+
+    <TextView
+        android:id="@+id/tvIngredientName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tomatoes"
+        android:textColor="@color/text_primary"
+        android:textSize="19sp"
+        android:textStyle="bold" />
+
+
+    <!-- ===================================================== -->
+    <!-- QUANTITY -->
+    <!-- ===================================================== -->
+
+    <TextView
+        android:id="@+id/tvQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="5 kg"
+        android:textColor="@color/primary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+
+    <!-- ===================================================== -->
+    <!-- EXPIRY -->
+    <!-- ===================================================== -->
+
+    <TextView
+        android:id="@+id/tvExpiry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Expires: 12/09/2027"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+
+    <!-- ===================================================== -->
+    <!-- ACTION BUTTONS -->
+    <!-- ===================================================== -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="90dp"
+            android:layout_height="42dp"
+            android:text="Edit"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:background="@drawable/bg_button_primary" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="90dp"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Delete"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:background="@drawable/bg_button_delete" />
+
+    </LinearLayout>
+
+</LinearLayout>
