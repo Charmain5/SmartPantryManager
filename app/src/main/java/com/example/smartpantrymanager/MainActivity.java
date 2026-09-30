@@ -1,3 +1,4 @@
+```java
 package com.example.smartpantrymanager;
 
 import android.content.Intent;
@@ -175,6 +176,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupAddButton() {
 
+        /*
+         * Connects the Add Ingredient button on the main screen
+         * to the Add/Edit Ingredient screen.
+         *
+         * The existing click behavior is kept unchanged.
+         */
+
         btnAddIngredient.setOnClickListener(view -> {
 
             openAddIngredient();
@@ -187,6 +195,11 @@ public class MainActivity extends AppCompatActivity {
     // =========================================================
 
     private void openAddIngredient() {
+
+        /*
+         * Opens AddEditIngredientActivity when the user
+         * selects the Add Ingredient button.
+         */
 
         Intent intent = new Intent(
                 MainActivity.this,
@@ -214,6 +227,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSuggestedRecipesButton() {
 
+        /*
+         * Connects the Suggested Recipes button on the main
+         * screen to the Suggested Recipes screen.
+         *
+         * The existing navigation logic is unchanged.
+         */
+
         btnSuggestedRecipes.setOnClickListener(view -> {
 
             openSuggestedRecipes();
@@ -226,6 +246,10 @@ public class MainActivity extends AppCompatActivity {
     // =========================================================
 
     private void openSuggestedRecipes() {
+
+        /*
+         * Opens SuggestedRecipesActivity from the main screen.
+         */
 
         Intent intent = new Intent(
                 MainActivity.this,
@@ -253,6 +277,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSettingsButton() {
 
+        /*
+         * Connects the Settings button on the main screen
+         * to the Settings screen.
+         *
+         * The current button behavior is intentionally
+         * unchanged.
+         */
+
         btnSettings.setOnClickListener(view -> {
 
             openSettings();
@@ -265,6 +297,11 @@ public class MainActivity extends AppCompatActivity {
     // =========================================================
 
     private void openSettings() {
+
+        /*
+         * Opens SettingsActivity when the Settings button
+         * is selected from the main screen.
+         */
 
         Intent intent = new Intent(
                 MainActivity.this,
@@ -585,3 +622,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+```
