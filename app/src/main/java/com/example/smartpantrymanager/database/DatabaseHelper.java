@@ -12,12 +12,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // DATABASE
     // =========================================================
 
+    // Name of the local SQLite database used by the application.
     private static final String DATABASE_NAME = "SmartPantry.db";
 
     /*
-     * Version 2 adds the recipe system.
+     * Database version 2 includes the recipe system.
      *
-     * Existing pantry data will NOT be deleted during upgrade.
+     * The upgrade process keeps existing pantry data
+     * when the database structure is upgraded.
      */
     private static final int DATABASE_VERSION = 2;
 
@@ -26,12 +28,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // PANTRY TABLE
     // =========================================================
 
+    // Table containing the user's pantry ingredients.
     public static final String TABLE_PANTRY = "pantry_items";
 
+    // Primary key for each pantry item.
     public static final String COL_PANTRY_ID = "id";
+
+    // Ingredient name stored in the pantry.
     public static final String COL_PANTRY_NAME = "name";
+
+    // Quantity available for the pantry ingredient.
     public static final String COL_PANTRY_QUANTITY = "quantity";
+
+    // Unit used for the ingredient quantity.
     public static final String COL_PANTRY_UNIT = "unit";
+
+    // Optional expiry date for the pantry ingredient.
     public static final String COL_PANTRY_EXPIRY = "expiry_date";
 
 
@@ -39,10 +51,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // RECIPES TABLE
     // =========================================================
 
+    // Table containing the recipes available in the application.
     public static final String TABLE_RECIPES = "recipes";
 
+    // Primary key for each recipe.
     public static final String COL_RECIPE_ID = "id";
+
+    // Name of the recipe.
     public static final String COL_RECIPE_NAME = "name";
+
+    // Cooking/preparation instructions for the recipe.
     public static final String COL_RECIPE_INSTRUCTIONS = "instructions";
 
 
@@ -50,19 +68,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // RECIPE INGREDIENTS TABLE
     // =========================================================
 
+    // Table connecting recipes with their required ingredients.
     public static final String TABLE_RECIPE_INGREDIENTS =
             "recipe_ingredients";
 
+    // Primary key for each recipe ingredient record.
     public static final String COL_RECIPE_INGREDIENT_ID = "id";
 
+    // Foreign key that connects an ingredient to a recipe.
     public static final String COL_RECIPE_ID_FK = "recipe_id";
 
+    // Name of the required ingredient.
     public static final String COL_INGREDIENT_NAME =
             "ingredient_name";
 
+    // Quantity required by the recipe.
     public static final String COL_REQUIRED_QUANTITY =
             "required_quantity";
 
+    // Measurement unit used by the recipe.
     public static final String COL_INGREDIENT_UNIT =
             "unit";
 
@@ -71,6 +95,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // CONSTRUCTOR
     // =========================================================
 
+    /*
+     * Creates the DatabaseHelper instance.
+     *
+     * The helper manages creation, upgrades, and access
+     * to the application's local SQLite database.
+     */
     public DatabaseHelper(Context context) {
 
         super(
@@ -89,10 +119,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // Create the pantry table when the database
+        // is created for the first time.
         createPantryTable(db);
 
+        // Create the recipe and recipe ingredient tables.
         createRecipeTables(db);
 
+        // Add the application's initial recipe data.
         seedRecipes(db);
     }
 
@@ -110,15 +144,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         /*
          * IMPORTANT:
          *
-         * We are NOT dropping the pantry table.
+         * The pantry table is intentionally not deleted
+         * during a database upgrade.
          *
-         * This preserves existing user data.
+         * This prevents existing user pantry data
+         * from being lost.
          */
 
         if (oldVersion < 2) {
 
+            // Add the recipe system when upgrading
+            // from an older database version.
             createRecipeTables(db);
 
+            // Add the default recipes.
             seedRecipes(db);
         }
     }
@@ -133,6 +172,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         super.onConfigure(db);
 
+        /*
+         * Enable SQLite foreign key constraints.
+         *
+         * This allows recipe ingredient records to remain
+         * correctly linked to their parent recipes.
+         */
         db.setForeignKeyConstraintsEnabled(true);
     }
 
@@ -142,6 +187,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // =========================================================
 
     private void createPantryTable(SQLiteDatabase db) {
+
+        /*
+         * Creates the pantry_items table.
+         *
+         * Each pantry item contains:
+         * - ID
+         * - Ingredient name
+         * - Quantity
+         * - Unit
+         * - Optional expiry date
+         */
 
         String sql =
                 "CREATE TABLE IF NOT EXISTS "
@@ -177,6 +233,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Recipes
         // -----------------------------------------------------
 
+        /*
+         * The recipes table stores the basic information
+         * about each recipe.
+         */
+
         String recipesSql =
                 "CREATE TABLE IF NOT EXISTS "
                         + TABLE_RECIPES
@@ -197,6 +258,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // -----------------------------------------------------
         // Recipe ingredients
         // -----------------------------------------------------
+
+        /*
+         * The recipe_ingredients table stores the ingredients
+         * required by each recipe.
+         *
+         * recipe_id is a foreign key connected to the recipes
+         * table. ON DELETE CASCADE automatically removes
+         * related ingredients when a recipe is deleted.
+         */
 
         String ingredientsSql =
                 "CREATE TABLE IF NOT EXISTS "
@@ -234,6 +304,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // PANTRY CRUD
     // =========================================================
 
+    /*
+     * Adds a new ingredient to the user's pantry.
+     *
+     * @return the ID of the newly inserted pantry item.
+     */
     public long addPantryItem(
             String name,
             double quantity,
@@ -274,6 +349,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    /*
+     * Retrieves all pantry items.
+     *
+     * Items are sorted alphabetically by ingredient name.
+     */
     public Cursor getAllPantryItems() {
 
         SQLiteDatabase db =
@@ -291,6 +371,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    /*
+     * Retrieves one pantry item using its database ID.
+     */
     public Cursor getPantryItemById(int id) {
 
         SQLiteDatabase db =
@@ -310,6 +393,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    /*
+     * Updates an existing pantry item.
+     *
+     * The item is located using its unique database ID.
+     */
     public int updatePantryItem(
             int id,
             String name,
@@ -354,6 +442,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    /*
+     * Deletes a pantry item using its unique database ID.
+     */
     public int deletePantryItem(int id) {
 
         SQLiteDatabase db =
@@ -373,6 +464,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // ADD RECIPE
     // =========================================================
 
+    /*
+     * Inserts a recipe into the recipes table.
+     *
+     * This method is used internally while creating
+     * the default recipe data.
+     */
     private long addRecipe(
             SQLiteDatabase db,
             String name,
@@ -403,6 +500,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // ADD RECIPE INGREDIENT
     // =========================================================
 
+    /*
+     * Adds an ingredient requirement to a recipe.
+     *
+     * recipeId connects this ingredient to the parent recipe.
+     */
     private void addRecipeIngredient(
             SQLiteDatabase db,
             long recipeId,
@@ -445,11 +547,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // SEED RECIPES
     // =========================================================
 
+    /*
+     * Inserts the default recipes used by the application.
+     *
+     * A check is performed first to prevent the same
+     * recipes from being inserted multiple times.
+     */
     private void seedRecipes(SQLiteDatabase db) {
 
         /*
-         * Prevent duplicate recipes if this method is called
-         * more than once.
+         * Check whether at least one recipe already exists.
+         *
+         * This prevents duplicate seed data if this method
+         * is called more than once.
          */
 
         Cursor cursor = db.query(
@@ -479,6 +589,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // 1. TOMATO PASTA
         // =====================================================
 
+        // Add the recipe and store its database ID.
         long recipeId = addRecipe(
                 db,
                 "Tomato Pasta",
@@ -489,6 +600,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         + "5. Mix in the cooked pasta and serve."
         );
 
+        // Add the ingredients required by Tomato Pasta.
         addRecipeIngredient(
                 db, recipeId, "pasta", 200, "grams"
         );
@@ -1020,10 +1132,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db, recipeId, "peas", 100, "grams"
         );
     }
-    // =========================================================
-// GET ALL RECIPES
-// =========================================================
 
+
+    // =========================================================
+    // GET ALL RECIPES
+    // =========================================================
+
+    /*
+     * Retrieves all recipes from the database.
+     *
+     * Recipes are returned alphabetically by recipe name.
+     */
     public Cursor getAllRecipes() {
 
         SQLiteDatabase db =
@@ -1041,10 +1160,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-// =========================================================
-// GET RECIPE BY ID
-// =========================================================
+    // =========================================================
+    // GET RECIPE BY ID
+    // =========================================================
 
+    /*
+     * Retrieves a specific recipe using its unique ID.
+     *
+     * This is used by RecipeDetailActivity to display
+     * the selected recipe.
+     */
     public Cursor getRecipeById(int recipeId) {
 
         SQLiteDatabase db =
@@ -1064,10 +1189,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-// =========================================================
-// GET INGREDIENTS FOR A RECIPE
-// =========================================================
+    // =========================================================
+    // GET INGREDIENTS FOR A RECIPE
+    // =========================================================
 
+    /*
+     * Retrieves all ingredients belonging to a specific recipe.
+     *
+     * Ingredients are sorted alphabetically by ingredient name.
+     */
     public Cursor getRecipeIngredients(int recipeId) {
 
         SQLiteDatabase db =
@@ -1086,3 +1216,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 }
+
