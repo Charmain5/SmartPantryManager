@@ -15,10 +15,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
     // UI COMPONENTS
     // =========================================================
 
+    // Displays the name of the selected recipe.
     private TextView tvRecipeName;
 
+    // Displays all ingredients required for the recipe.
     private TextView tvRecipeIngredients;
 
+    // Displays the preparation instructions for the recipe.
     private TextView tvRecipeInstructions;
 
 
@@ -26,6 +29,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
     // DATABASE
     // =========================================================
 
+    // Handles all database operations related to recipes.
     private DatabaseHelper databaseHelper;
 
 
@@ -33,6 +37,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
     // RECIPE ID
     // =========================================================
 
+    // Stores the ID of the recipe received from the previous screen.
+    // -1 means that no valid recipe ID was provided.
     private int recipeId = -1;
 
 
@@ -45,7 +51,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        // Load recipe detail layout
+        // Load the recipe detail screen layout.
         setContentView(R.layout.activity_recipe_detail);
 
 
@@ -53,6 +59,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         // Initialize database
         // -----------------------------------------------------
 
+        // Create the database helper so recipe information
+        // can be retrieved from the local SQLite database.
         databaseHelper = new DatabaseHelper(this);
 
 
@@ -60,6 +68,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         // Initialize views
         // -----------------------------------------------------
 
+        // Connect Java variables with the TextViews
+        // defined in activity_recipe_detail.xml.
         initializeViews();
 
 
@@ -67,6 +77,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
         // Get recipe ID from Intent
         // -----------------------------------------------------
 
+        // Retrieve the selected recipe ID that was passed
+        // from the previous Activity.
         recipeId = getIntent().getIntExtra(
                 "recipe_id",
                 -1
@@ -77,6 +89,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         // Validate recipe ID
         // -----------------------------------------------------
 
+        // A valid recipe ID is required to load recipe details.
         if (recipeId == -1) {
 
             Toast.makeText(
@@ -85,6 +98,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
+            // Close this screen when no valid recipe exists.
             finish();
 
             return;
@@ -95,6 +109,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         // Load recipe
         // -----------------------------------------------------
 
+        // Load the selected recipe information and ingredients.
         loadRecipeDetails();
     }
 
@@ -105,18 +120,21 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
     private void initializeViews() {
 
+        // Find the TextView used to display the recipe name.
         tvRecipeName =
                 findViewById(
                         R.id.tvRecipeName
                 );
 
 
+        // Find the TextView used to display recipe ingredients.
         tvRecipeIngredients =
                 findViewById(
                         R.id.tvRecipeIngredients
                 );
 
 
+        // Find the TextView used to display recipe instructions.
         tvRecipeInstructions =
                 findViewById(
                         R.id.tvRecipeInstructions
@@ -130,8 +148,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
     private void loadRecipeDetails() {
 
+        // Load general recipe information such as
+        // the recipe name and preparation instructions.
         loadRecipeInformation();
 
+        // Load the ingredients required by the selected recipe.
         loadRecipeIngredients();
     }
 
@@ -147,6 +168,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         try {
 
+            // Query the database for the selected recipe.
             cursor =
                     databaseHelper.getRecipeById(
                             recipeId
@@ -161,6 +183,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 // Recipe name
                 // -------------------------------------------------
 
+                // Read the recipe name from the database.
                 String recipeName =
                         cursor.getString(
                                 cursor.getColumnIndexOrThrow(
@@ -173,6 +196,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 // Preparation instructions
                 // -------------------------------------------------
 
+                // Read the preparation instructions from the database.
                 String instructions =
                         cursor.getString(
                                 cursor.getColumnIndexOrThrow(
@@ -185,6 +209,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 // Display recipe name
                 // -------------------------------------------------
 
+                // Show the recipe name on the detail screen.
                 tvRecipeName.setText(
                         recipeName
                 );
@@ -194,6 +219,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 // Display instructions
                 // -------------------------------------------------
 
+                // Show the preparation instructions on the screen.
                 tvRecipeInstructions.setText(
                         instructions
                 );
@@ -201,6 +227,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         } catch (Exception e) {
 
+            // Display an error message if the recipe
+            // information cannot be loaded.
             Toast.makeText(
                     this,
                     "Unable to load recipe",
@@ -209,6 +237,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         } finally {
 
+            // Always close the database cursor after use
+            // to avoid leaving database resources open.
             if (cursor != null) {
 
                 cursor.close();
@@ -226,12 +256,16 @@ public class RecipeDetailActivity extends AppCompatActivity {
         Cursor cursor = null;
 
 
+        // StringBuilder is used to build a formatted list
+        // containing all recipe ingredients.
         StringBuilder ingredients =
                 new StringBuilder();
 
 
         try {
 
+            // Retrieve all ingredients associated with
+            // the selected recipe from the database.
             cursor =
                     databaseHelper.getRecipeIngredients(
                             recipeId
@@ -247,6 +281,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     // Ingredient name
                     // -------------------------------------------------
 
+                    // Read the ingredient name from the database.
                     String name =
                             cursor.getString(
                                     cursor.getColumnIndexOrThrow(
@@ -259,6 +294,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     // Required quantity
                     // -------------------------------------------------
 
+                    // Read the required quantity for the ingredient.
                     double quantity =
                             cursor.getDouble(
                                     cursor.getColumnIndexOrThrow(
@@ -271,6 +307,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     // Unit
                     // -------------------------------------------------
 
+                    // Read the measurement unit such as
+                    // grams, kilograms, cups, or pieces.
                     String unit =
                             cursor.getString(
                                     cursor.getColumnIndexOrThrow(
@@ -283,6 +321,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     // Add ingredient to list
                     // -------------------------------------------------
 
+                    // Add the ingredient information to the
+                    // formatted ingredient list.
                     ingredients
                             .append("• ")
                             .append(name)
@@ -299,12 +339,14 @@ public class RecipeDetailActivity extends AppCompatActivity {
             // Display ingredients
             // ---------------------------------------------------------
 
+            // Display the complete formatted ingredient list.
             tvRecipeIngredients.setText(
                     ingredients.toString()
             );
 
         } catch (Exception e) {
 
+            // Show an error message if ingredients cannot be loaded.
             Toast.makeText(
                     this,
                     "Unable to load ingredients",
@@ -313,6 +355,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         } finally {
 
+            // Close the cursor after the database operation is complete.
             if (cursor != null) {
 
                 cursor.close();
@@ -328,9 +371,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private String formatQuantity(
             double quantity) {
 
-        // Example:
-        // 2.0 -> 2
-        // 2.5 -> 2.5
+        /*
+         * Removes unnecessary decimal places from whole numbers.
+         *
+         * Example:
+         * 2.0 -> 2
+         * 2.5 -> 2.5
+         */
 
         if (quantity == (long) quantity) {
 
@@ -345,3 +392,4 @@ public class RecipeDetailActivity extends AppCompatActivity {
         );
     }
 }
+
